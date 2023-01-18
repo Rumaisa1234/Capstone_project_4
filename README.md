@@ -5,6 +5,7 @@
 
 | Abdul Wassay Ansari | wassay.ansari@xloopdigital.com |
 | Syed Hamza | syed.hamza@xloopdigital.com
+|Durraiyah Muneer | durraiyah.munir@xloopdigital.com
 
 ## Contribution 
 
