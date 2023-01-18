@@ -4,5 +4,9 @@
 ## Team members 
 
 | Abdul Wassay Ansari | wassay.ansari@xloopdigital.com |
+| Syed Hamza | syed.hamza@xloopdigital.com
 
 ## Contribution 
+
+ _Describe briefly contributions conventions you agree on in your team_
+
