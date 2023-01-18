@@ -3,7 +3,6 @@
 
 ## Team members 
 
-| SyedHamza | syed.hamza@xloopdigital.com |
-| - | - |
+| Abdul Wassay Ansari | wassay.ansari@xloopdigital.com |
 
 ## Contribution 
