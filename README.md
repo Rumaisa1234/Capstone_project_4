@@ -12,7 +12,7 @@
 | Durraiyah Muneer | durraiyah.munir@xloopdigital.com |
 
 
-| Yamna Tahir |yamna.tahirr@xloopdigital.com |
+| Yamna Tahir |yamna.tahir@xloopdigital.com |
 
 
 | Usman Zaman | usman.zaman@xloopdigital.com |
