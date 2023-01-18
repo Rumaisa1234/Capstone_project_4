@@ -7,3 +7,4 @@
 | - | - |
 
 ## Contribution 
+ _Describe briefly contributions conventions you agree on in your team_
