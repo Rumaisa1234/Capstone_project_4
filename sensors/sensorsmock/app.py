@@ -1,9 +1,8 @@
 import logging
 
-from fastapi import Request, FastAPI
 import uvicorn
+from fastapi import FastAPI, Request
 from sensorsmock.service import SensorService
-
 
 app = FastAPI()
 
@@ -18,19 +17,20 @@ def get_luxmeter(room_id: str):
     data = sensor_service.get_lux_meter_data(room_id)
 
     return data
-    
+
+
 @app.post("/api/carbonsense")
 async def collect_carbon_sense_data(request: Request):
     received_data = await request.json()
     print(f"Received Carbonsense Data: {received_data}")
-    return {"msg": "received moisture_mate data: {received_data}"}
+    return {"msg": f"received moisture_mate data: {received_data}"}
+
 
 @app.post("/api/moisturemate")
 async def collect_moisture_mate_data(request: Request):
     received_data = await request.json()
     print(f"Received MoistureMate Data: {received_data}")
-    return {"msg": "received moisture_mate data: {received_data}"}
-
+    return {"msg": f"received moisture_mate data: {received_data}"}
 
 
 @app.post("/api/collect")

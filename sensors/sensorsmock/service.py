@@ -78,11 +78,7 @@ class SensorService:
 
     async def send_carbon_sense(self, date: str, sample: Dict[str, Measurement]):
         for room, measurement in sample.items():
-            data = {
-            	"timestamp": date, 
-            	"room_id": room, 
-		"co2": measurement.co2
-		}
+            data = {"timestamp": date, "room_id": room, "co2": measurement.co2}
 
             await self._send_request(self._carbon_sense_url, data)
 
