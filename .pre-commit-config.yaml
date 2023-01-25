@@ -4,16 +4,13 @@ repos:
     hooks:
       - id: isort
         name: isort (python)
-        exclude: 
   - repo: https://github.com/psf/black
     rev: 22.3.0
     hooks:
     - id: black
-      exclude:
   - repo: https://github.com/hadialqattan/pycln
     rev: v1.3.5
     hooks:
     - id: pycln
       args: ["-a"]
-      exclude:
 
