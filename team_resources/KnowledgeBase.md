@@ -11,24 +11,4 @@ clients using the httpx library, and sending post requests but there is no confi
 * For the carbon sense and moisture mate sensors, we have created a separate micrsoservice that will be accepting post requests from the sensorsmock microservice. This microservice is 
 title postapi. 
    * ISSUES FACED: Correct configuration of the postapi microservice that has to communicate with the sensorsmock service proved a bit tricky. The error was resolved when we used the depends_on attribute in docker-compose to create sensorsmock's dependency on postapi. We were then able to reference postapi's endpoints in the sensorsmock microservice.
-	  		   
-	  		   
-	  		   
-	  
-	  
-	  
-	  
-	  
-	
-
-
-
-
-	
-
-
-	
-	  
-	  
-	
-	
+	  		
