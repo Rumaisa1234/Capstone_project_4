@@ -27,6 +27,7 @@ class SensorService:
     def __init__(self):
         self._moisture_mate_url = os.environ.get("MOISTURE_MATE_URL")
         self._carbon_sense_url = os.environ.get("CARBON_SENSE_URL")
+
         self._smart_thermo_bucket = os.environ.get("SMART_THERMO_BUCKET")
 
         if None in (

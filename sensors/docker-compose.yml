@@ -2,14 +2,22 @@ version: "3.9"
 services:
   sensorsmock:
     build: .
+    container_name: sensor
     ports:
       - "3000:3000"
-    volumes:   
-      - ./:/app
+    depends_on:
+      - postapi
     environment:
       - SMART_THERMO_BUCKET=capstone-test-1
-      - MOISTURE_MATE_URL=http://localhost:3000/api/moisturemate
-      - CARBON_SENSE_URL=http://localhost:3000/api/carbonsense
+      - CARBON_SENSE_URL=http://postapi:3001/api/collect/moisturemate_data
+      - MOISTURE_MATE_URL=http://postapi:3001/api/collect/carbonsense_data
       - AWS_ACCESS_KEY_ID=
       - AWS_SECRET_ACCESS_KEY=
       - AWS_SESSION_TOKEN=
+  postapi:
+    build: ./post
+    container_name: postapi
+    ports:
+      - "3001:3001"
+
+
