@@ -5,23 +5,10 @@ services:
     ports:
       - "3000:3000"
     environment:
-<<<<<<< HEAD
       - SMART_THERMO_BUCKET=your-bucket
       - MOISTURE_MATE_URL=your-url
       - CARBON_SENSE_URL=your-url
       - AWS_ACCESS_KEY_ID=your-access-key
       - AWS_SECRET_ACCESS_KEY=your-secret-key
       - AWS_SESSION_TOKEN=your-token
-=======
-      - SMART_THERMO_BUCKET=capstone-test-1
-      - CARBON_SENSE_URL=http://postapi:3001/api/collect/moisturemate_data
-      - MOISTURE_MATE_URL=http://postapi:3001/api/collect/carbonsense_data
-      - AWS_ACCESS_KEY_ID=
-      - AWS_SECRET_ACCESS_KEY=
-      - AWS_SESSION_TOKEN=
-  postapi:
-    build: ./post
-    container_name: postapi
-    ports:
-      - "3001:3001"
->>>>>>> fc6ed09b1c0a5ed3fd46b1ba70292b0ef88ce16a
+
