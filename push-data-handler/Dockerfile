@@ -7,7 +7,7 @@ RUN pip3 install -r requirements.txt
 
 
 
-COPY postapi.py postapi.py
+COPY push-data-handler.py push-data-handler.py
 
 ENV PYTHONPATH /app
-CMD [ "python3", "postapi.py"]
+CMD [ "python3", "push-data-handler.py"]
