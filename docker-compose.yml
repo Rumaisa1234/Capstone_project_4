@@ -19,5 +19,4 @@ services:
     container_name: postapi
     ports:
       - "3001:3001"
-
-
+      
