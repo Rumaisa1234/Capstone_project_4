@@ -9,14 +9,20 @@ services:
       - postapi
     environment:
       - SMART_THERMO_BUCKET=capstone-test-1
-      - CARBON_SENSE_URL=http://postapi:3001/api/collect/moisturemate_data
-      - MOISTURE_MATE_URL=http://postapi:3001/api/collect/carbonsense_data
-      - AWS_ACCESS_KEY_ID=ASIAY2K6D3PWCEJQIPOA
-      - AWS_SECRET_ACCESS_KEY=YM/E3K3vszCPiXT3RRTNoGNUIMw3lW4hOUqMqLir
-      - AWS_SESSION_TOKEN=FwoGZXIvYXdzEOH//////////wEaDBsxwjw9haKsf0tnRCKCAUDRCabbPwn/2aFxueUQotrXOWpHTGEP8TtwmwOClSwzg2dCq4WjbBF6bTJtTmGhyaFoQjysmzXOWYaptg9aJf7DKXL//YnZr83tpoXUMcX+7TLyoSvXB3111CPUqG2QyxaqghpNKjYXc93g0yLTSM3ytWWEEvPoseADKIYZpjBnt/oo+NvPngYyKMOwcVjBr1sOSrMB4tLXLhy1Zm+IYhL18ScxwSRZxUgIpk3quYv5Wls=
+      - CARBON_SENSE_URL=http://postapi:3001/api/collect/carbonsense_data
+      - MOISTURE_MATE_URL=http://postapi:3001/api/collect/moisturemate_data
+      - AWS_ACCESS_KEY_ID=ASIAY2K6D3PWHCXUYNRT
+      - AWS_SECRET_ACCESS_KEY=5T/MpbDRib1Rby7V9Pez7hTO/Hv5FuZFsuCJzOZT
+      - AWS_SESSION_TOKEN=FwoGZXIvYXdzEGsaDBYxX2Uf1TgEz3FjJSKCAT6cTgN0QJ9dH/XrfRUOfait/bvONsv8Fsl0F0Ifw/5eCKnkNuvFMnprLduKUPD5VuYPvClwzbG77c2WntoJumGZtXDHC+D9UKiI2AT8q3mRsDSDjOQaVqjXrn/KN8BQFd6B+xpHtNlTNzrkXZXefkGTvhwMzIqi2wyAbYJmwz11xw0om4fungYyKO01ocSgezthGLx2hEaYl2YDJ6+iwjY+oizy4hHpfhaKsAY6ASPF+1A=
   postapi:
     build: ./push-data-handler
     container_name: postapi
     ports:
       - "3001:3001"
-
+  luxdata:
+   build: ./lux_microservice
+   container_name: getlux
+   ports: 
+     - "3002:3002"
+   depends_on:
+     - sensorsmock	
