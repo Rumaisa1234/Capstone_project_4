@@ -7,7 +7,5 @@ COPY crontab /etc/cron.d/crontab
 RUN chmod 0644 /etc/cron.d/crontab
 RUN crontab /etc/cron.d/crontab
 COPY lux_microservice.py lux_microservice.py
-RUN pip install requests
 ENV PYTHONPATH /app
 CMD ["cron", "-f"]
-
