@@ -1,5 +1,7 @@
 {
     "python.analysis.extraPaths": [
-        "./sensors/sensorsmock"
+        "./sensors/sensorsmock",
+        "./sensors",
+        "./sensors"
     ]
 }

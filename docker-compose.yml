@@ -15,7 +15,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=
       - AWS_SESSION_TOKEN=
   postapi:
-    build: ./push-data-handler
+    build: ./push_data_handler
     container_name: postapi
     ports:
       - "3001:3001"
