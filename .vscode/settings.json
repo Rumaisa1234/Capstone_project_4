@@ -1,7 +1,0 @@
-{
-    "python.analysis.extraPaths": [
-        "./sensors/sensorsmock",
-        "./sensors",
-        "./sensors"
-    ]
-}
