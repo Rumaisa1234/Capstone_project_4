@@ -1,10 +1,10 @@
 import logging
-
 import uvicorn
 from fastapi import FastAPI, Request
 
 app = FastAPI()
 
+# logger=logging.getLogger()
 
 @app.post("/api/collect/moisturemate_data")
 async def collect_moisture_mate_data(request: Request):
