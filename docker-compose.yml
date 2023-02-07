@@ -13,12 +13,12 @@ services:
       - AWS_SECRET_ACCESS_KEY=
       - AWS_SESSION_TOKEN=
   postapi:
-    build: ./push-data-handler
+    build: ./push_data_handler
     container_name: postapi
     ports:
       - "3001:3001"
   luxdata:
-    build: ./lux_microservice
+    build: ./pulling_from_lux_sensor
     container_name: getlux
     ports: 
       - "3002:3002"

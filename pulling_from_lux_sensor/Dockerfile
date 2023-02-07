@@ -6,6 +6,6 @@ RUN pip3 install -r requirements.txt
 COPY crontab /etc/cron.d/crontab
 RUN chmod 0644 /etc/cron.d/crontab
 RUN crontab /etc/cron.d/crontab
-COPY lux_microservice.py lux_microservice.py
+COPY lux_data_extraction_job.py lux_data_extraction_job.py
 ENV PYTHONPATH /app
 CMD ["cron", "-f"]

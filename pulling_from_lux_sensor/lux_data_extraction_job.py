@@ -11,4 +11,4 @@ url_prefix = "http://sensorsmock:3000/api/luxmeter"
 
 for room in rooms:
     response = requests.get(f"{url_prefix}/{room}").json()
-    logger.info(response)
+    print(response)
