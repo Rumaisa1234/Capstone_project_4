@@ -1,4 +1,5 @@
 import logging
+
 import uvicorn
 from fastapi import FastAPI
 from sensorsmock import SensorService
