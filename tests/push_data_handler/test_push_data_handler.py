@@ -22,4 +22,3 @@ def test_collect_carbonsense_data_response_200():
 def test_invalid_endpoints_response_404():
     response = client.post("/api/invalid", json={"test_key": "test_value"})
     assert response.status_code == 404
-
