@@ -5,12 +5,10 @@ services:
     container_name: sensor
     ports:
       - "3000:3000"
-    depends_on:
-      - postapi
     environment:
       - SMART_THERMO_BUCKET=capstone-test-1
-      - CARBON_SENSE_URL=http://postapi:3001/api/collect/moisturemate_data
-      - MOISTURE_MATE_URL=http://postapi:3001/api/collect/carbonsense_data
+      - CARBON_SENSE_URL=http://postapi:3001/api/collect/carbonsense_data
+      - MOISTURE_MATE_URL=http://postapi:3001/api/collect/moisturemate_data
       - AWS_ACCESS_KEY_ID=
       - AWS_SECRET_ACCESS_KEY=
       - AWS_SESSION_TOKEN=
@@ -19,4 +17,12 @@ services:
     container_name: postapi
     ports:
       - "3001:3001"
-
+  luxdata:
+    build: ./lux_microservice
+    container_name: getlux
+    ports: 
+      - "3002:3002"
+    environment: 
+      - SENSORSMOCK_URL = http://sensorsmock:3000/api/luxmeter      
+    depends_on:
+      - sensorsmock
