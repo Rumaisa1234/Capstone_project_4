@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict
 
+import boto3
 import httpx
 import pandas as pd
 
@@ -61,7 +62,18 @@ class SensorService:
             ]
         )
 
-        df.to_csv(f"s3://{self._smart_thermo_bucket}/smart_thermo/{date}.csv")
+        s3 = boto3.client(
+            "s3",
+            endpoint_url="http://minio:9000",
+            aws_access_key_id="minioadmin",
+            aws_secret_access_key="minioadmin",
+        )
+        csv_data = df.to_csv().encode("utf-8")
+        s3.put_object(
+            Bucket=self._smart_thermo_bucket,
+            Key=f"/smart_thermo/{date}.csv",
+            Body=csv_data,
+        )
 
     async def send_moisture_mate(self, date: str, sample: Dict[str, Measurement]):
         for room, measurement in sample.items():
