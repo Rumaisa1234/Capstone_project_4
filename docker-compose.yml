@@ -39,3 +39,17 @@ services:
       - MINIO_SECRET_KEY= minioadmin
     entrypoint: minio server
     command: '/export'
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+      - sensorsmock
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc rm -r --force myminio/smartthermo;
+      /usr/bin/mc mb myminio/smartthermo;
+      /usr/bin/mc policy download myminio/smartthermo;
+      exit 0;
+      "
