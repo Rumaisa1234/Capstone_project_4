@@ -26,3 +26,16 @@ services:
       - SENSORSMOCK_URL = http://sensorsmock:3000/api/luxmeter      
     depends_on:
       - sensorsmock
+
+  minio:
+    image: minio/minio
+    restart: always
+    command: minio server --console-address ":9001" /data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      - MINIO_ACCESS_KEY= minioadmin
+      - MINIO_SECRET_KEY= minioadmin
+    entrypoint: minio server
+    command: '/export'
