@@ -53,3 +53,17 @@ services:
       /usr/bin/mc policy download myminio/smartthermo;
       exit 0;
       "
+  smart_thermo:
+    build: ./smart_thermo_service
+    container_name: pulling_From_s3
+    ports:
+      - "3003:3003"
+    environment:
+      - KAFKA_TOPIC=smart_thermo
+      - SMART_THERMO_BUCKET=smartthermo
+      - KAFKA_BOOTSTRAP_SERVER= broker:29092
+    depends_on:
+      - broker
+      - sensorsmock
+    restart: always
+      
