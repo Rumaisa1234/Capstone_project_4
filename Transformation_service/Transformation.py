@@ -1,13 +1,14 @@
 import json
-from kafka import KafkaConsumer, KafkaProducer
 import logging
 import os
+import queue
+import threading
+
 import pandas as pd
+from kafka import KafkaConsumer, KafkaProducer
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import udf
 from pyspark.sql.types import DoubleType
-import queue
-import threading
 
 
 # Driver function
