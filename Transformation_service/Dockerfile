@@ -11,5 +11,5 @@ RUN apt-get update && apt-get install -y procps
 ENV PYSPARK_PYTHON python3
 ENV PYSPARK_DRIVER_PYTHON python3
 
-CMD ["spark-submit", "Transformation.py"]
+CMD ["python3", "Transformation.py"]
 
