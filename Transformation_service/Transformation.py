@@ -3,7 +3,7 @@ import logging
 import os
 import queue
 import threading
-
+import time
 import pandas as pd
 from kafka import KafkaConsumer, KafkaProducer
 from pyspark.sql import SparkSession
@@ -35,9 +35,9 @@ def loop():
                 luxmeter_dataframe,
                 smart_thermo_dataframe,
             )
-            if Flag:
-                logging.info(f" transformed data frame: {transformed_dataframe.show()}")
-                publish_to_kafka(transformed_dataframe)
+            
+            logging.info(f" transformed data frame successful!!!")
+            publish_to_kafka(transformed_dataframe)
 
 
 def publish_to_kafka(message):
@@ -55,6 +55,7 @@ def kafka_consumer_executor():
     carbon_thread.start()
     moisturemate_thread.start()
     smartthermo_thread.start()
+    time.sleep(60)
     luxmeter_thread.start()
 
 
@@ -191,11 +192,9 @@ def transformation_operations(data_frame):
     duplicate_room_id_count = 4 - count_room_ID
     if (count_timestamps == 1) and (null_count == 0) and (duplicate_room_id_count == 0):
         transformed_dataframe = data_frame
-        Flag = True
         print("successfully transformed")
         return transformed_dataframe
     else:
-        Flag = False
         error_info = f"{null_count} null values, {count_timestamps} timestamps found,{duplicate_room_id_count} duplicate room ID's in the dataframe."
         logging.error(f" transformed data frame error info: {error_info}")
         return data_frame
@@ -219,5 +218,4 @@ if __name__ == "__main__":
     luxmeter_data_buffer = queue.Queue()
     carbonsense_data_buffer = queue.Queue()
     moisturemate_data_buffer = queue.Queue()
-    Flag = True
     loop()

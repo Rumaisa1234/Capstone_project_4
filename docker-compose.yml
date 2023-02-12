@@ -1,6 +1,18 @@
 version: "3.9"
 services:
 
+  sensorsmock:
+    build: ./sensors
+    container_name: sensor
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postapi
+    environment:
+      - SMART_THERMO_BUCKET=smartthermo
+      - CARBON_SENSE_URL=http://postapi:3001/api/collect/carbonsense_data
+      - MOISTURE_MATE_URL=http://postapi:3001/api/collect/moisturemate_data
+
   minio:
     image: minio/minio
     restart: always
@@ -9,12 +21,10 @@ services:
       - 9000:9000
       - 9001:9001
     environment:
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
+      - MINIO_ACCESS_KEY= minioadmin
+      - MINIO_SECRET_KEY= minioadmin
     entrypoint: minio server
     command: '/export'
-    depends_on:
-      - sensorsmock
 
   createbuckets:
     image: minio/mc
@@ -29,20 +39,6 @@ services:
       /usr/bin/mc policy download myminio/smartthermo;
       exit 0;
       "
-  sensorsmock:
-    build: ./sensors
-    container_name: sensor
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postapi
-    environment:
-      - SMART_THERMO_BUCKET=smartthermo
-      - CARBON_SENSE_URL=http://postapi:3001/api/collect/carbonsense_data
-      - MOISTURE_MATE_URL=http://postapi:3001/api/collect/moisturemate_data
-      - MINIO_ACCESS_KEY= minioadmin
-      - MINIO_SECRET_KEY= minioadmin
-      - MINIO_ENDPOINT=http://minio:9000
       
   postapi:
     build: ./push-data-handler
@@ -67,15 +63,17 @@ services:
     restart: always
 
   smart_thermo:
-    build: ./pulling_from_s3
-    container_name: smart_thermo
+    build: ./smart_thermo_service
+    container_name: pulling_From_s3
     ports:
       - "3003:3003"
     environment:
+      - KAFKA_TOPIC=smart_thermo
+      - SMART_THERMO_BUCKET=smartthermo
       - KAFKA_BOOTSTRAP_SERVER= broker:29092
     depends_on:
       - broker
-      - minio
+      - sensorsmock
     restart: always
 
   zookeeper:
@@ -95,8 +93,8 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://127.0.0.1:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -104,8 +102,8 @@ services:
     command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic carbonsense)&) && /etc/confluent/docker/run "
     command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic moisturemate)&) && /etc/confluent/docker/run "
     command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic luxmeter)&) && /etc/confluent/docker/run "
-    restart: always
-
+    restart: always     
+  
   transformation_service:
     build: ./Transformation_service
     environment:
@@ -114,7 +112,6 @@ services:
       - broker
     ports:
       - "8000:8000"
-   
-  
-      
+    restart: always
+
 
