@@ -13,25 +13,24 @@ services:
       - AWS_SECRET_ACCESS_KEY=
       - AWS_SESSION_TOKEN=
     depends_on:
-      - postapi      
+      - postapi   
   postapi:
     build: ./push_data_handler
     container_name: postapi
     ports:
       - "3001:3001"
     environment:
-      - KAFKA_BOOTSTRAP_SERVER= broker:29092
+      - KAFKA_BOOTSTRAP_SERVER= broker:29092      
     depends_on:
-      - broker
-        
+      - broker     
   luxdata:
     build: ./lux_data_puller
     container_name: getlux
-    ports:
+    ports: 
       - "3002:3002"
-    environment:
-      - SENSORSMOCK_URL=http://sensorsmock:3000/api/luxmeter
+    environment: 
       - KAFKA_BOOTSTRAP_SERVER= broker:29092
+      - SENSORSMOCK_URL = http://sensorsmock:3000/api/luxmeter      
     depends_on:
       - broker
     restart: always
