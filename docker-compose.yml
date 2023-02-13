@@ -6,8 +6,14 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - SMART_THERMO_BUCKET=capstone-test-1
       - CARBON_SENSE_URL=http://postapi:3001/api/collect/carbonsense_data
       - MOISTURE_MATE_URL=http://postapi:3001/api/collect/moisturemate_data
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
+      - AWS_SESSION_TOKEN=
+    depends_on:
+      - postapi      
   postapi:
     build: ./push_data_handler
     container_name: postapi
@@ -18,12 +24,13 @@ services:
     depends_on:
       - broker
         
-  luxdata_puller:
-    build: ./pulling_from_sensor
-    container_name: luxdata_puller
+  luxdata:
+    build: ./lux_data_puller
+    container_name: getlux
     ports:
       - "3002:3002"
     environment:
+      - SENSORSMOCK_URL=http://sensorsmock:3000/api/luxmeter
       - KAFKA_BOOTSTRAP_SERVER= broker:29092
     depends_on:
       - broker
@@ -53,16 +60,7 @@ services:
     command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic carbonsense)&) && /etc/confluent/docker/run "
     command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic moisturemate)&) && /etc/confluent/docker/run "
     command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic luxmeter)&) && /etc/confluent/docker/run "
-    restart: always
-  pyspark:
-    image: jupyter/pyspark-notebook
-    environment:
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
-    depends_on:
-      - broker
-    ports:
-      - "8888:8888"      
-     
+    restart: always      
 
   minio:
     image: minio/minio
