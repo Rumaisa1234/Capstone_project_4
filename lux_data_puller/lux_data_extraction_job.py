@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import os
@@ -19,8 +20,19 @@ producer = KafkaProducer(
 
 
 def get_lux_data(room):
-    data = requests.get(f"{url_prefix}/{room}").json()
-    return {data["room_id"]: data["measurements"][-1]}
+    seconds = 0
+    while seconds < 11:
+        my_date = (
+            datetime.datetime.utcnow().replace(second=0, microsecond=0).isoformat()
+        )
+        data = requests.get(f"{url_prefix}/{room}").json()
+        timestamp = data["measurements"][-1]["timestamp"]
+        if my_date != timestamp:
+            print("not a new value")
+            time.sleep(1)
+            seconds += 1
+        else:
+            return {data["room_id"]: data["measurements"][-1]}
 
 
 def send_to_producer():
@@ -29,8 +41,3 @@ def send_to_producer():
         lux_data = get_lux_data(room)
         producer.send("luxmeter", value=lux_data)
         logger.info(f"Sent luxmeter data: {lux_data}")
-
-
-while True:
-    send_to_producer()
-    time.sleep(60)
