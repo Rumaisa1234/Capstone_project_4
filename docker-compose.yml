@@ -63,7 +63,6 @@ services:
       - SMART_THERMO_BUCKET=smartthermo
       - KAFKA_BOOTSTRAP_SERVER= broker:29092
     depends_on:
-      - broker
       - sensorsmock
     restart: always
       
