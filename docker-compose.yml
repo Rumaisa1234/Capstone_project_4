@@ -6,27 +6,58 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - SMART_THERMO_BUCKET=capstone-test-1
+      - SMART_THERMO_BUCKET=smartthermo
       - CARBON_SENSE_URL=http://postapi:3001/api/collect/carbonsense_data
       - MOISTURE_MATE_URL=http://postapi:3001/api/collect/moisturemate_data
-      - AWS_ACCESS_KEY_ID=
-      - AWS_SECRET_ACCESS_KEY=
-      - AWS_SESSION_TOKEN=
+      #- AWS_ACCESS_KEY_ID=
+      #- AWS_SECRET_ACCESS_KEY=
+      #- AWS_SESSION_TOKEN=
   postapi:
     build: ./push_data_handler
     container_name: postapi
     ports:
       - "3001:3001"
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER= broker:29092      
+    depends_on:
+      - broker     
   luxdata:
-    build: ./lux_microservice
+    build: ./lux_data_puller
     container_name: getlux
     ports: 
       - "3002:3002"
     environment: 
+      - KAFKA_BOOTSTRAP_SERVER= broker:29092
       - SENSORSMOCK_URL = http://sensorsmock:3000/api/luxmeter      
     depends_on:
-      - sensorsmock
-
+      - broker
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+  broker:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: broker
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://127.0.0.1:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic smart_thermo)&) && /etc/confluent/docker/run "  
+    command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic carbonsense)&) && /etc/confluent/docker/run "
+    command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic moisturemate)&) && /etc/confluent/docker/run "
+    command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic luxmeter)&) && /etc/confluent/docker/run "
+    restart: always
   minio:
     image: minio/minio
     restart: always
@@ -38,7 +69,7 @@ services:
       - MINIO_ACCESS_KEY= minioadmin
       - MINIO_SECRET_KEY= minioadmin
     entrypoint: minio server
-    command: '/export'
+    command: '/export'   
 
   createbuckets:
     image: minio/mc
@@ -55,7 +86,7 @@ services:
       "
   smart_thermo:
     build: ./smart_thermo_service
-    container_name: pulling_From_s3
+    container_name: pulling_from_s3
     ports:
       - "3003:3003"
     environment:
@@ -64,5 +95,6 @@ services:
       - KAFKA_BOOTSTRAP_SERVER= broker:29092
     depends_on:
       - sensorsmock
+      - broker
     restart: always
       
