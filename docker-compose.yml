@@ -84,12 +84,3 @@ services:
       /usr/bin/mc policy download myminio/smartthermo;
       exit 0;
       "
-  transformation_service:
-    build: ./transformation_service
-    environment:
-      - KAFKA_BOOTSTRAP_SERVER= broker:29092
-    depends_on:
-      - broker
-    ports:
-      - "8000:8000"
-    restart: always   
