@@ -1,81 +1,36 @@
 version: "3.9"
 services:
-
   sensorsmock:
     build: ./sensors
     container_name: sensor
     ports:
       - "3000:3000"
-    depends_on:
-      - postapi
     environment:
-      - SMART_THERMO_BUCKET=smartthermo
+      - SMART_THERMO_BUCKET=capstone-test-1
       - CARBON_SENSE_URL=http://postapi:3001/api/collect/carbonsense_data
       - MOISTURE_MATE_URL=http://postapi:3001/api/collect/moisturemate_data
-
-  minio:
-    image: minio/minio
-    restart: always
-    command: minio server --console-address ":9001" /data
-    ports:
-      - 9000:9000
-      - 9001:9001
-    environment:
-      - MINIO_ACCESS_KEY= minioadmin
-      - MINIO_SECRET_KEY= minioadmin
-    entrypoint: minio server
-    command: '/export'
-
-  createbuckets:
-    image: minio/mc
-    depends_on:
-      - minio
-      - sensorsmock
-    entrypoint: >
-      /bin/sh -c "
-      /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin;
-      /usr/bin/mc rm -r --force myminio/smartthermo;
-      /usr/bin/mc mb myminio/smartthermo;
-      /usr/bin/mc policy download myminio/smartthermo;
-      exit 0;
-      "
-      
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
+      - AWS_SESSION_TOKEN=
   postapi:
-    build: ./push-data-handler
+    build: ./push_data_handler
     container_name: postapi
     ports:
       - "3001:3001"
     environment:
-      - KAFKA_BOOTSTRAP_SERVER= broker:29092
+      - KAFKA_BOOTSTRAP_SERVER= broker:29092      
     depends_on:
-      - broker
-        
-  luxdata_puller:
-    build: ./pulling_from_sensor
-    container_name: luxdata_puller
-    ports:
+      - broker     
+  luxdata:
+    build: ./lux_data_puller
+    container_name: getlux
+    ports: 
       - "3002:3002"
-    environment:
+    environment: 
       - KAFKA_BOOTSTRAP_SERVER= broker:29092
-      - SENSORSMOCK_URL=http://sensorsmock:3000/api/luxmeter
+      - SENSORSMOCK_URL = http://sensorsmock:3000/api/luxmeter      
     depends_on:
       - broker
-    restart: always
-
-  smart_thermo:
-    build: ./smart_thermo_service
-    container_name: pulling_From_s3
-    ports:
-      - "3003:3003"
-    environment:
-      - KAFKA_TOPIC=smart_thermo
-      - SMART_THERMO_BUCKET=smartthermo
-      - KAFKA_BOOTSTRAP_SERVER= broker:29092
-    depends_on:
-      - broker
-      - sensorsmock
-    restart: always
-
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: zookeeper
@@ -102,16 +57,39 @@ services:
     command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic carbonsense)&) && /etc/confluent/docker/run "
     command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic moisturemate)&) && /etc/confluent/docker/run "
     command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic luxmeter)&) && /etc/confluent/docker/run "
-    restart: always     
-  
+    restart: always
+  minio:
+    image: minio/minio
+    restart: always
+    command: minio server --console-address ":9001" /data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      - MINIO_ACCESS_KEY= minioadmin
+      - MINIO_SECRET_KEY= minioadmin
+    entrypoint: minio server
+    command: '/export'   
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+      - sensorsmock
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc rm -r --force myminio/smartthermo;
+      /usr/bin/mc mb myminio/smartthermo;
+      /usr/bin/mc policy download myminio/smartthermo;
+      exit 0;
+      "
   transformation_service:
-    build: ./Transformation_service
+    build: ./transformation_service
     environment:
       - KAFKA_BOOTSTRAP_SERVER= broker:29092
     depends_on:
       - broker
     ports:
       - "8000:8000"
-    restart: always
-
-
+    restart: always   

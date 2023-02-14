@@ -36,7 +36,7 @@ def loop():
                 smart_thermo_dataframe,
             )
             
-            logging.info(f" transformed data frame successful!!!")
+            logger.info(f" transformed data frame successful!!!")
             publish_to_kafka(transformed_dataframe)
 
 
@@ -112,7 +112,7 @@ def carbonsense_data_consumption(consumer):
             messages.append(message.value)
             if len(messages) == 4:
                 dataframe = create_dataframe(messages)
-                logging.info(f" transformed data frame: {dataframe.show()}")
+                logger.info(f"  data frame: {dataframe.show()}")
                 carbonsense_data_buffer.put(dataframe)
                 break
 
@@ -124,7 +124,7 @@ def moisturemate_data_consumption(consumer):
             messages.append(message.value)
             if len(messages) == 4:
                 dataframe = create_dataframe(messages)
-                logging.info(f" transformed data frame: {dataframe.show()}")
+                logger.info(f"  data frame: {dataframe.show()}")
                 moisturemate_data_buffer.put(dataframe)
                 break
 
@@ -146,7 +146,7 @@ def smart_thermo_data_consumption(consumer):
         for message in consumer:
             if len(message.value) == 4:
                 dataframe = create_dataframe(message.value)
-                logging.info(f" transformed data frame: {dataframe.show()}")
+                logger.info(f"  data frame: {dataframe.show()}")
                 smart_thermo_data_buffer.put(dataframe)
                 break
 
@@ -192,12 +192,13 @@ def transformation_operations(data_frame):
     duplicate_room_id_count = 4 - count_room_ID
     if (count_timestamps == 1) and (null_count == 0) and (duplicate_room_id_count == 0):
         transformed_dataframe = data_frame
-        print("successfully transformed")
+        logger.info("successfully transformed")
         return transformed_dataframe
     else:
         error_info = f"{null_count} null values, {count_timestamps} timestamps found,{duplicate_room_id_count} duplicate room ID's in the dataframe."
-        logging.error(f" transformed data frame error info: {error_info}")
+        logger.info(f" transformed data frame error info: {error_info}")
         return data_frame
+
 
 
 def json_deserializer(data):
@@ -208,6 +209,7 @@ def json_deserializer(data):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     KAFKA_BROKER_URL = os.environ.get("KAFKA_BOOTSTRAP_SERVER")
+    logger = logging.getLogger()
     Producer = KafkaProducer(
         bootstrap_servers=KAFKA_BROKER_URL,
         value_serializer=lambda encoder: json.dumps(encoder).encode("utf8"),
