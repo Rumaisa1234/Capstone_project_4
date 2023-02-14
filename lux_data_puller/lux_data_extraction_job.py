@@ -6,16 +6,11 @@ import time
 import requests
 from kafka import KafkaProducer
 
-logger = logging.getLogger()
-
 url_prefix = os.environ.get("SENSORSMOCK_URL")
-
 KAFKA_BROKER_URL = os.environ.get("KAFKA_BOOTSTRAP_SERVER")
-producer = KafkaProducer(
-    bootstrap_servers=KAFKA_BROKER_URL,
-    value_serializer=lambda x: json.dumps(x).encode("utf8"),
-    api_version=(0, 10, 1),
-)
+
+logger = None
+producer = None
 
 
 def get_lux_data(room):
@@ -31,6 +26,21 @@ def send_to_producer():
         logger.info(f"Sent luxmeter data: {lux_data}")
 
 
-while True:
-    send_to_producer()
-    time.sleep(60)
+def loop():
+    while True:
+        send_to_producer()
+        time.sleep(60)
+        logging.basicConfig(level=logging.INFO)
+
+
+if __name__ == "__main__":
+
+    logger = logging.getLogger()
+
+    producer = KafkaProducer(
+        bootstrap_servers=KAFKA_BROKER_URL,
+        value_serializer=lambda x: json.dumps(x).encode("utf8"),
+        api_version=(0, 10, 1),
+    )
+
+    loop()
