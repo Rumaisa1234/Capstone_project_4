@@ -13,7 +13,7 @@ KAFKA_BROKER_URL = os.environ.get("KAFKA_BOOTSTRAP_SERVER")
 KAFKA_TOPIC = os.environ.get("KAFKA_TOPIC")
 
 
-producer=None
+producer = None
 
 
 s3 = boto3.client(
@@ -38,16 +38,19 @@ def get_data():
     initial_df = initial_df.iloc[:, 1:]
     return initial_df.to_dict(orient="records")
 
+
 def loop():
     while True:
         data = get_data()
         producer.send(KAFKA_TOPIC, value=data)
         time.sleep(60)
-        
+
+
 if __name__ == "__main__":
     producer = KafkaProducer(
-    bootstrap_servers=KAFKA_BROKER_URL,
-    value_serializer=lambda x: json.dumps(x).encode("utf8"),
-    api_version=(0, 10, 1),)
+        bootstrap_servers=KAFKA_BROKER_URL,
+        value_serializer=lambda x: json.dumps(x).encode("utf8"),
+        api_version=(0, 10, 1),
+    )
 
     loop()
