@@ -3,7 +3,7 @@ import logging
 
 from kafka import KafkaConsumer
 
-logger = None
+logger = logging.getLogger()
 consumer = None
 
 
@@ -17,8 +17,6 @@ def read_msgs():
 
 
 if __name__ == "__main__":
-
-    logger = logging.getLogger()
 
     consumer = KafkaConsumer(
         "luxmeter",
