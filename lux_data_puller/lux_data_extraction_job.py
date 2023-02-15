@@ -9,7 +9,8 @@ from kafka import KafkaProducer
 url_prefix = os.environ.get("SENSORSMOCK_URL")
 KAFKA_BROKER_URL = os.environ.get("KAFKA_BOOTSTRAP_SERVER")
 
-logger = None
+logger = logging.getLogger()
+
 producer = None
 
 
@@ -30,12 +31,11 @@ def loop():
     while True:
         send_to_producer()
         time.sleep(60)
-        logging.basicConfig(level=logging.INFO)
 
 
 if __name__ == "__main__":
 
-    logger = logging.getLogger()
+    logging.basicConfig(level=logging.INFO)
 
     producer = KafkaProducer(
         bootstrap_servers=KAFKA_BROKER_URL,
