@@ -25,9 +25,8 @@ def get_predictions(consumer):
             predictions = model.predict(tmp_df)
             pred_column = pd.DataFrame(predictions, columns=["occupancy"])
             final_df = pd.concat([transformed_df, pred_column], axis=1)
-            print(final_df)
             publish_to_kafka(final_df)
-            logger.info("successfully sent our predicted data to kafka")
+            logger.info("successfully sent our predicted data {final_df} to kafka")
 
 
 def publish_to_kafka(dataframe):
