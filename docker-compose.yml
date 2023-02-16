@@ -68,7 +68,7 @@ services:
       - MINIO_ACCESS_KEY= minioadmin
       - MINIO_SECRET_KEY= minioadmin
     entrypoint: minio server
-    command: '/export'
+    command: '/export'   
 
   createbuckets:
     image: minio/mc
