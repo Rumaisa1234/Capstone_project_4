@@ -3,6 +3,7 @@ import logging
 import os
 import queue
 import threading
+
 import pandas as pd
 from kafka import KafkaConsumer, KafkaProducer
 from pyspark.sql import SparkSession
@@ -10,7 +11,7 @@ from pyspark.sql.functions import udf
 from pyspark.sql.types import DoubleType
 
 logger = logging.getLogger()
-Producer=None
+Producer = None
 
 # Driver function
 def loop():
@@ -36,14 +37,14 @@ def loop():
                 luxmeter_dataframe,
                 smart_thermo_dataframe,
             )
-            
+
             logger.info(f" transformed data frame successfully!!!")
             publish_to_kafka(transformed_dataframe)
 
 
 def publish_to_kafka(dataframe):
     try:
-        dataframe_rows= dataframe.toJSON().collect()
+        dataframe_rows = dataframe.toJSON().collect()
     except MemoryError:
         logging.error("A MemoryError occurred. Please free up memory and try again.")
     message_to_publish = [json.loads(message) for message in dataframe_rows]
@@ -75,7 +76,7 @@ def carbonsense_sensor_consumer():
         auto_offset_reset="latest",
         enable_auto_commit=True,
     )
-    data_consumption(carbonsense_consumer,carbonsense_data_buffer)
+    data_consumption(carbonsense_consumer, carbonsense_data_buffer)
 
 
 def moisturemate_sensor_consumer():
@@ -86,7 +87,7 @@ def moisturemate_sensor_consumer():
         auto_offset_reset="latest",
         enable_auto_commit=True,
     )
-    data_consumption(moisturemate_consumer,moisturemate_data_buffer)
+    data_consumption(moisturemate_consumer, moisturemate_data_buffer)
 
 
 def luxmeter_sensor_consumer():
@@ -97,7 +98,7 @@ def luxmeter_sensor_consumer():
         auto_offset_reset="latest",
         enable_auto_commit=True,
     )
-    luxmeter_data_consumption(luxmeter_consumer,luxmeter_data_buffer)
+    luxmeter_data_consumption(luxmeter_consumer, luxmeter_data_buffer)
 
 
 def smart_thermo_sensor_consumer():
@@ -108,11 +109,11 @@ def smart_thermo_sensor_consumer():
         auto_offset_reset="latest",
         enable_auto_commit=True,
     )
-    smart_thermo_data_consumption(smart_thermo_consumer,smart_thermo_data_buffer)
+    smart_thermo_data_consumption(smart_thermo_consumer, smart_thermo_data_buffer)
 
 
 # Messages are being recieved and then converted into dataframes and are eventually being placed into queues to be read here.
-def data_consumption(consumer,queue_buffer):
+def data_consumption(consumer, queue_buffer):
     while True:
         messages = []
         for message in consumer:
@@ -122,9 +123,9 @@ def data_consumption(consumer,queue_buffer):
                 logging.info("Message recieved and dataframe created successfully")
                 queue_buffer.put(dataframe)
                 break
- 
- 
-def luxmeter_data_consumption(consumer,queue_buffer):
+
+
+def luxmeter_data_consumption(consumer, queue_buffer):
     while True:
         messages = []
         for message in consumer:
@@ -133,10 +134,10 @@ def luxmeter_data_consumption(consumer,queue_buffer):
                 dataframe = create_dataframe_luxmeter(messages)
                 logging.info("Message recieved and dataframe created successfully")
                 queue_buffer.put(dataframe)
-                break   
+                break
 
 
-def smart_thermo_data_consumption(consumer,queue_buffer):
+def smart_thermo_data_consumption(consumer, queue_buffer):
     while True:
         for message in consumer:
             if len(message.value) == 4:
@@ -144,7 +145,6 @@ def smart_thermo_data_consumption(consumer,queue_buffer):
                 logging.info("Message recieved and dataframe created successfully")
                 queue_buffer.put(dataframe)
                 break
-
 
 
 # Dataframes creator methods that convert messages into pyspark dataframes
@@ -210,5 +210,3 @@ if __name__ == "__main__":
     carbonsense_data_buffer = queue.Queue()
     moisturemate_data_buffer = queue.Queue()
     loop()
-
-
