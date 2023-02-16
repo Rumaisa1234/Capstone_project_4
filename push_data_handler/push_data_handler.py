@@ -9,7 +9,7 @@ from kafka import KafkaProducer
 # Kafka settings
 KAFKA_BROKER_URL = os.environ.get("KAFKA_BOOTSTRAP_SERVER")
 producer = None
-logger = None
+logger = logging.getLogger()
 
 
 app = FastAPI()
