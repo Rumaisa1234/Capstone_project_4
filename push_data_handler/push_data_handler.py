@@ -20,7 +20,7 @@ async def collect_moisture_mate_data(request: Request):
     received_data = await request.json()
     logger.info(f"Received MoistureMate Data: {received_data}")
     record = producer.send("moisturemate", value=received_data)
-    logger.info("Producer has not sent your message")
+    logger.info(f"MoistureMate data sent to Kafka: {record}.")
 
 
 @app.post("/api/collect/carbonsense_data")
@@ -28,7 +28,7 @@ async def collect_carbon_sense_data(request: Request):
     received_data = await request.json()
     logger.info(f"Received CarbonSense Data: {received_data}")
     record = producer.send("carbonsense", value=received_data)
-    logger.info("Producer has not sent your message")
+    logger.info(f"CarbonSense data sent to Kafka: {record}.")
 
 
 def run_app():
@@ -42,5 +42,5 @@ if __name__ == "__main__":
         value_serializer=lambda x: json.dumps(x).encode("utf8"),
         api_version=(0, 10, 1),
     )
-    logger = logging.getLogger()
+    logging.basicConfig(level=logging.INFO)
     run_app()
