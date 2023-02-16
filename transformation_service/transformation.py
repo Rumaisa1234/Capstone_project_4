@@ -3,13 +3,14 @@ import logging
 import os
 import queue
 import threading
-import time
 import pandas as pd
 from kafka import KafkaConsumer, KafkaProducer
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import udf
 from pyspark.sql.types import DoubleType
 
+logger = logging.getLogger()
+Producer=None
 
 # Driver function
 def loop():
@@ -36,14 +37,17 @@ def loop():
                 smart_thermo_dataframe,
             )
             
-            logger.info(f" transformed data frame successful!!!")
+            logger.info(f" transformed data frame successfully!!!")
             publish_to_kafka(transformed_dataframe)
 
 
-def publish_to_kafka(message):
-    json_data = message.toJSON().collect()
-    json_data1 = [json.loads(message) for message in json_data]
-    Producer.send("transformed_dataframe", value=json_data1)
+def publish_to_kafka(dataframe):
+    try:
+        dataframe_rows= dataframe.toJSON().collect()
+    except MemoryError:
+        logging.error("A MemoryError occurred. Please free up memory and try again.")
+    message_to_publish = [json.loads(message) for message in dataframe_rows]
+    Producer.send("transformed_dataframe", value=message_to_publish)
     Producer.flush()
 
 
@@ -55,20 +59,23 @@ def kafka_consumer_executor():
     carbon_thread.start()
     moisturemate_thread.start()
     smartthermo_thread.start()
-    time.sleep(60)
     luxmeter_thread.start()
+
+
+def json_deserializer(data):
+    return json.loads(data.decode("utf-8"))
 
 
 # Consumer methods to consume messages that are being published in their respective topics.
 def carbonsense_sensor_consumer():
     carbonsense_consumer = KafkaConsumer(
         "carbonsense",
-        bootstrap_servers=[KAFKA_BROKER_URL],
+        bootstrap_servers=KAFKA_BROKER_URL,
         value_deserializer=json_deserializer,
         auto_offset_reset="latest",
         enable_auto_commit=True,
     )
-    carbonsense_data_consumption(carbonsense_consumer)
+    data_consumption(carbonsense_consumer,carbonsense_data_buffer)
 
 
 def moisturemate_sensor_consumer():
@@ -79,7 +86,7 @@ def moisturemate_sensor_consumer():
         auto_offset_reset="latest",
         enable_auto_commit=True,
     )
-    moisturemate_data_consumption(moisturemate_consumer)
+    data_consumption(moisturemate_consumer,moisturemate_data_buffer)
 
 
 def luxmeter_sensor_consumer():
@@ -90,7 +97,7 @@ def luxmeter_sensor_consumer():
         auto_offset_reset="latest",
         enable_auto_commit=True,
     )
-    luxmeter_data_consumption(luxmeter_consumer)
+    luxmeter_data_consumption(luxmeter_consumer,luxmeter_data_buffer)
 
 
 def smart_thermo_sensor_consumer():
@@ -101,54 +108,43 @@ def smart_thermo_sensor_consumer():
         auto_offset_reset="latest",
         enable_auto_commit=True,
     )
-    smart_thermo_data_consumption(smart_thermo_consumer)
+    smart_thermo_data_consumption(smart_thermo_consumer,smart_thermo_data_buffer)
 
 
 # Messages are being recieved and then converted into dataframes and are eventually being placed into queues to be read here.
-def carbonsense_data_consumption(consumer):
+def data_consumption(consumer,queue_buffer):
     while True:
         messages = []
         for message in consumer:
             messages.append(message.value)
             if len(messages) == 4:
                 dataframe = create_dataframe(messages)
-                logger.info(f"  data frame: {dataframe.show()}")
-                carbonsense_data_buffer.put(dataframe)
+                logging.info("Message recieved and dataframe created successfully")
+                queue_buffer.put(dataframe)
                 break
-
-
-def moisturemate_data_consumption(consumer):
-    while True:
-        messages = []
-        for message in consumer:
-            messages.append(message.value)
-            if len(messages) == 4:
-                dataframe = create_dataframe(messages)
-                logger.info(f"  data frame: {dataframe.show()}")
-                moisturemate_data_buffer.put(dataframe)
-                break
-
-
-def luxmeter_data_consumption(consumer):
+ 
+ 
+def luxmeter_data_consumption(consumer,queue_buffer):
     while True:
         messages = []
         for message in consumer:
             messages.append(message.value)
             if len(messages) == 4:
                 dataframe = create_dataframe_luxmeter(messages)
-                logging.info(f" transformed data frame: {dataframe.show()}")
-                luxmeter_data_buffer.put(dataframe)
-                break
+                logging.info("Message recieved and dataframe created successfully")
+                queue_buffer.put(dataframe)
+                break   
 
 
-def smart_thermo_data_consumption(consumer):
+def smart_thermo_data_consumption(consumer,queue_buffer):
     while True:
         for message in consumer:
             if len(message.value) == 4:
                 dataframe = create_dataframe(message.value)
-                logger.info(f"  data frame: {dataframe.show()}")
-                smart_thermo_data_buffer.put(dataframe)
+                logging.info("Message recieved and dataframe created successfully")
+                queue_buffer.put(dataframe)
                 break
+
 
 
 # Dataframes creator methods that convert messages into pyspark dataframes
@@ -196,20 +192,13 @@ def transformation_operations(data_frame):
         return transformed_dataframe
     else:
         error_info = f"{null_count} null values, {count_timestamps} timestamps found,{duplicate_room_id_count} duplicate room ID's in the dataframe."
-        logger.info(f" transformed data frame error info: {error_info}")
-        return data_frame
-
-
-
-def json_deserializer(data):
-    return json.loads(data.decode("utf-8"))
+        logger.info(f" transformation failed, error info: {error_info}")
 
 
 # driver function initiator function
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     KAFKA_BROKER_URL = os.environ.get("KAFKA_BOOTSTRAP_SERVER")
-    logger = logging.getLogger()
     Producer = KafkaProducer(
         bootstrap_servers=KAFKA_BROKER_URL,
         value_serializer=lambda encoder: json.dumps(encoder).encode("utf8"),
@@ -221,3 +210,5 @@ if __name__ == "__main__":
     carbonsense_data_buffer = queue.Queue()
     moisturemate_data_buffer = queue.Queue()
     loop()
+
+

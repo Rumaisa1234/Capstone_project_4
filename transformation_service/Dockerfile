@@ -5,11 +5,11 @@ RUN apt-get update && \
     apt-get install -y openjdk-11-jre-headless && \
     pip install pyspark
 COPY requirements.txt requirements.txt
-COPY Transformation.py Transformation.py
+COPY transformation.py transformation.py
 RUN pip install -r requirements.txt
 RUN apt-get update && apt-get install -y procps  
 ENV PYSPARK_PYTHON python3
 ENV PYSPARK_DRIVER_PYTHON python3
 
-CMD ["python3", "Transformation.py"]
+CMD ["python3", "transformation.py"]
 
