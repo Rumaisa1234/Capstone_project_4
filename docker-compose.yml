@@ -6,12 +6,12 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - SMART_THERMO_BUCKET=capstone-test-1
+      - SMART_THERMO_BUCKET=smartthermo
       - CARBON_SENSE_URL=http://postapi:3001/api/collect/carbonsense_data
       - MOISTURE_MATE_URL=http://postapi:3001/api/collect/moisturemate_data
-      - AWS_ACCESS_KEY_ID=
-      - AWS_SECRET_ACCESS_KEY=
-      - AWS_SESSION_TOKEN=
+      #- AWS_ACCESS_KEY_ID=
+      #- AWS_SECRET_ACCESS_KEY=
+      #- AWS_SESSION_TOKEN=
   postapi:
     build: ./push_data_handler
     container_name: postapi
@@ -53,7 +53,6 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-    command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic smart_thermo)&) && /etc/confluent/docker/run "  
     command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic carbonsense)&) && /etc/confluent/docker/run "
     command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic moisturemate)&) && /etc/confluent/docker/run "
     command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic luxmeter)&) && /etc/confluent/docker/run "
@@ -84,6 +83,20 @@ services:
       /usr/bin/mc policy download myminio/smartthermo;
       exit 0;
       "
+  smart_thermo:
+    build: ./smart_thermo_service
+    container_name: pulling_from_s3
+    ports:
+      - "3003:3003"
+    environment:
+      - KAFKA_TOPIC=smart_thermo
+      - SMART_THERMO_BUCKET=smartthermo
+      - KAFKA_BOOTSTRAP_SERVER= broker:29092
+    depends_on:
+      - sensorsmock
+      - broker
+    restart: always
+      
   transformation_service:
     build: ./transformation_service
     environment:
