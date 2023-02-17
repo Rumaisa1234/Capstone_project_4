@@ -63,6 +63,9 @@ def scheduling():
 
 
 if __name__ == "__main__":
+
+    logging.basicConfig(level=logging.INFO)
+
     producer = KafkaProducer(
         bootstrap_servers=KAFKA_BROKER_URL,
         value_serializer=lambda x: json.dumps(x).encode("utf8"),
