@@ -9,18 +9,6 @@ services:
       - SMART_THERMO_BUCKET=smartthermo
       - CARBON_SENSE_URL=http://rest-proxy:8082/topics/carbonsense
       - MOISTURE_MATE_URL=http://rest-proxy:8082/topics/moisturemate
-      #- AWS_ACCESS_KEY_ID=
-      #- AWS_SECRET_ACCESS_KEY=
-      #- AWS_SESSION_TOKEN=
-  # postapi:
-  #   build: ./push_data_handler
-  #   container_name: postapi
-  #   ports:
-  #     - "3001:3001"
-  #   environment:
-  #     - KAFKA_BOOTSTRAP_SERVER= broker:29092      
-  #   depends_on:
-  #     - broker     
   luxdata:
     build: ./lux_data_puller
     container_name: getlux
@@ -72,7 +60,6 @@ services:
   rest-proxy:
     image: confluentinc/cp-kafka-rest:7.3.0
     depends_on:
-      # - broker
       - schema-registry
     ports:
       - 8082:8082
