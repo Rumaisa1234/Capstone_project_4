@@ -107,3 +107,12 @@ services:
       - "8001:8001"
     restart: always
  
+  transformation_service:
+    build: ./transformation_service
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER= broker:29092
+    depends_on:
+      - broker
+    ports:
+      - "8000:8000"
+    restart: always   
