@@ -97,6 +97,16 @@ services:
       - broker
     restart: always
       
+  prediction_service:
+    build: ./prediction_service
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER= broker:29092
+    depends_on:
+      - broker
+    ports:
+      - "8001:8001"
+    restart: always
+ 
   transformation_service:
     build: ./transformation_service
     environment:
