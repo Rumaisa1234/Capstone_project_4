@@ -33,10 +33,10 @@ def get_datetime():
 
 
 def get_data():
-    bucket = "smartthermo"
+    bucket = SMART_THERMO_BUCKET
     key = get_datetime()
-    second = 0
-    while second < 11:
+    retries = 0
+    while retries < 11:
         try:
             obj = s3.get_object(Bucket=bucket, Key=f"smart_thermo/{key}")
             res = obj["Body"].read()
@@ -44,9 +44,11 @@ def get_data():
             initial_df = initial_df.iloc[:, 1:]
             return initial_df.to_dict(orient="records")
         except Exception:
-            logger.info("not a new value")
+            logger.info(
+                f"File smart_thermo/{key} not present in the bucket yet, retrying in 1 second."
+            )
             time.sleep(1)
-            second += 1
+            retries += 1
 
 
 def send_to_producer():

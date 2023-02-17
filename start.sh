@@ -6,5 +6,3 @@ docker compose up -d broker
 docker compose up -d minio
 docker compose up -d createbuckets
 docker compose up -d --build
-
-
