@@ -17,17 +17,25 @@ producer = None
 
 
 def get_lux_data(room):
-    seconds = 0
-    while seconds < 11:
+    retries = 0
+    while retries < 11:
         my_date = datetime.utcnow().replace(second=0, microsecond=0).isoformat()
-        data = requests.get(f"{url_prefix}/{room}").json()
+        count = 0
+        while count < 11:
+            try:
+                data = requests.get(f"{url_prefix}/{room}").json()
+                count += 1
+                break
+            except:
+                time.sleep(1)
+                continue
         timestamp = data["measurements"][-1]["timestamp"]
         if my_date == timestamp:
             return {data["room_id"]: data["measurements"][-1]}
         else:
-            logger.info("not a new value")
+            logger.info(f"At this timestamp {timestamp} no new value is received")
             time.sleep(1)
-            seconds += 1
+            retries += 1
 
 
 def send_to_producer():
