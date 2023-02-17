@@ -9,4 +9,3 @@ RUN pip install requests
 ENV PYTHONPATH /app
 
 CMD [ "python3", "smart_thermo_service.py"]
-

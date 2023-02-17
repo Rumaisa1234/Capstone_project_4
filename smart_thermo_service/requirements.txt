@@ -2,3 +2,4 @@ kafka-python
 requests
 pandas
 boto3
+APScheduler==3.10.0
