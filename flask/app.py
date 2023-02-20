@@ -30,10 +30,7 @@ def consume_messages():
 
         # Save the message to the latest_messages list
         latest_messages.append(message.value)
-
-        # Keep only the last 4 messages
-        if len(latest_messages) > 4:
-            latest_messages = latest_messages[-4:]
+        latest_messages = latest_messages[-4:]
 
 
 def start_message_consumer():
@@ -44,13 +41,11 @@ def start_message_consumer():
 
 @app.route("/")
 def get_my_data():
-
     return render_template("index.html", messages=latest_messages)
 
 
 @app.route("/latest_data")
 def latest_data():
-
     return render_template("latest_data.html", messages=latest_messages)
 
 
