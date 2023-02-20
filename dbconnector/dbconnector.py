@@ -8,7 +8,7 @@ def json_deserializer(data):
     return json.loads(data.decode("utf-8"))
 
 
-def storing_records(consumer,collection):
+def storing_records(consumer, collection):
     for message in consumer:
         collection.insert_many(message.value)
 
@@ -26,4 +26,4 @@ if __name__ == "__main__":
     )
     db = client["IOTSensors"]
     collection = db["DataWOccupancy"]
-    storing_records(predicted_data_consumer,collection)
+    storing_records(predicted_data_consumer, collection)
