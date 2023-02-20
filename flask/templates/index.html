@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Occupancy Detection</title>
+</head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
+<style>
+  
+  .head {
+    background-color: black;
+    color: #f5f5f5;
+    font-size: 36px;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    margin-bottom: 20px;
+    font-family: 'Poppins';
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .card {
+    width: 300px;
+    height: 370px;
+    border-radius: 20px;
+    background: #f5f5f5;
+    position: relative;
+    padding: 1.2rem;
+    border: 1px solid #dddddd;
+    /* transition: 0.5s ease-out; */
+    overflow: visible;
+    margin: 20px;
+    box-shadow: 0 4px 18px 0 rgba(230, 230, 230, 0.733);
+
+  }
+
+  .card-details {
+    color: black;
+    height: 100%;
+    gap: 0.5em;
+    display: grid;
+    place-content: center;
+    align-content: center;
+    justify-content: start;
+    align-items: center;
+    justify-items: stretch;
+  }
+
+
+  .text-body {
+    color: rgb(95, 95, 95);
+    margin: 4px;
+    font-weight: bold;
+  }
+
+  .text-title {
+    font-size: 1.4em;
+    font-weight: bold;
+    font-family: 'Poppins';
+    text-transform: uppercase;
+    margin-top: 20px;
+    margin-bottom: 10px;
+
+  }
+
+
+  .main {
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    margin-top: 40px;
+  }
+
+  .white {
+    background-color: white;
+    padding: 8px;
+    border-radius: 10px;
+  }
+
+  .green {
+    border-color: #0cc706 !important;
+    box-shadow: 0 10px 18px 0 rgba(25, 247, 5, 0.541) !important;
+  }
+</style>
+
+<body>
+  <header>
+    <div class="head">
+      Occupancy Detection
+    </div>
+  </header>
+  <div class="main" id="reload">
+    {% for message in messages %}
+    <div id="occupancy" class="card {{ 'green' if message[0]['occupancy'] }}">
+      <div class="card-details">
+        <p class="text-title">{{ message[0]["room_id"] }}</p>
+        <table>
+          <tr>
+            <td>
+              <p class="text-body">Timestamp:</p>
+            </td>
+            <td>
+              <p class="text-body white">{{ message[0]["timestamp"] }}</p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p class="text-body">Temperature:</p>
+            </td>
+            <td>
+              <p class="text-body white">{{ message[0]["temperature"] }}</p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p class="text-body">Humidity:</p>
+            </td>
+            <td>
+              <p class="text-body white">{{ message[0]["humidity"] }}</p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p class="text-body">Humidity Ratio:</p>
+            </td>
+            <td>
+              <p class="text-body white">{{ message[0]["humidity_ratio"] }}</p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p class="text-body">CO2:</p>
+            </td>
+            <td>
+              <p class="text-body white">{{ message[0]["co2"] }}</p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p class="text-body">Light Level:</p>
+            </td>
+            <td>
+              <p class="text-body white">{{ message[0]["light_level"] }}</p>
+            </td>
+          </tr>
+        </table>
+        <div class="check">
+          <p class="text-body">Occupancy: {{ message[0]["occupancy"] }}</p>
+
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</body>
+
+<script>
+  function load_data() {
+
+    const cards = document.querySelectorAll('.card'); // get all card elements
+    cards.forEach(card => {
+      if (card.innerText.includes('Occupancy: 1')) { // check if the occupancy is 1
+        card.classList.add('green'); // add the 'green' class
+      }
+    });
+  } 
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+  setInterval(function () {
+    $.ajax({
+      url: "/latest_data",
+      type: "get",
+      success: function (response) {
+        var reload = document.getElementById("reload");
+        reload.innerHTML = response
+        console.log(response)
+      },
+      error: function (xhr) {
+        console.log("error")
+      }
+    });
+  }, 1000);
+</script>
+
+</html>
