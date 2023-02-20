@@ -189,6 +189,16 @@ def transformation_operations(data_frame):
     if (count_timestamps == 1) and (null_count == 0) and (duplicate_room_id_count == 0):
         transformed_dataframe = data_frame
         logger.info("successfully transformed")
+        column_order = [
+            "timestamp",
+            "room_id",
+            "temperature",
+            "humidity",
+            "light_level",
+            "co2",
+            "humidity_ratio",
+        ]
+        transformed_dataframe = transformed_dataframe.select(*column_order)
         return transformed_dataframe
     else:
         error_info = f"{null_count} null values, {count_timestamps} timestamps found,{duplicate_room_id_count} duplicate room ID's in the dataframe."
