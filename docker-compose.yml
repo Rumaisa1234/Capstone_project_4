@@ -130,3 +130,11 @@ services:
       ports:
         - "8005:8005"
       restart: on-failure
+  web:
+      build: flask
+      container_name: flask
+      ports:
+        - '5000:5000'
+      depends_on:
+        - databaseconnector
+      restart: on-failure     
