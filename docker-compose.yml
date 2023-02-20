@@ -122,14 +122,6 @@ services:
     ports:
       - "8001:8001"
     restart: on-failure
-  databaseconnector:
-      build: ./dbconnector
-      container_name: database
-      depends_on:
-        - prediction_service
-      ports:
-        - "8005:8005"
-      restart: on-failure
   web:
       build: flask
       container_name: flask
