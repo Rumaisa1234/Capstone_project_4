@@ -1,0 +1,5 @@
+kafka-python
+pandas==1.2.2
+scikit-learn
+ 
+

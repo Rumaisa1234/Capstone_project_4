@@ -143,8 +143,10 @@ class SensorService:
         await self.send_carbon_sense(date, new_sample)
 
     async def _send_request(self, url: str, data: dict):
+        headers = {"Content-Type": "application/vnd.kafka.json.v2+json"}
+        data = {"records": [{"value": data}]}
         async with httpx.AsyncClient() as client:
-            r = await client.post(url, json=data)
+            r = await client.post(url, json=data, headers=headers)
 
         if r.status_code != httpx.codes.OK:
             logger.warning(f"Got status code: {r.status_code} for {url}")

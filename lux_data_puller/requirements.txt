@@ -1,2 +1,4 @@
 requests==2.25.1
 kafka-python==2.0.1
+APScheduler==3.10.0
+
