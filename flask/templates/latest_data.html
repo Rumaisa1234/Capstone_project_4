@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+
+    <div class="main" id="reload">
+        {% for message in messages %}
+        <div id="occupancy" class="card {{ 'green' if message[0]['occupancy'] }}">
+            <div class="card-details">
+                <p class="text-title">{{ message[0]["room_id"] }}</p>
+                <table>
+                    <tr>
+                        <td>
+                            <p class="text-body">Timestamp:</p>
+                        </td>
+                        <td>
+                            <p class="text-body white">{{ message[0]["timestamp"] }}</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p class="text-body">Temperature:</p>
+                        </td>
+                        <td>
+                            <p class="text-body white">{{ message[0]["temperature"] }}</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p class="text-body">Humidity:</p>
+                        </td>
+                        <td>
+                            <p class="text-body white">{{ message[0]["humidity"] }}</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p class="text-body">Humidity Ratio:</p>
+                        </td>
+                        <td>
+                            <p class="text-body white">{{ message[0]["humidity_ratio"] }}</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p class="text-body">CO2:</p>
+                        </td>
+                        <td>
+                            <p class="text-body white">{{ message[0]["co2"] }}</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p class="text-body">Light Level:</p>
+                        </td>
+                        <td>
+                            <p class="text-body white">{{ message[0]["light_level"] }}</p>
+                        </td>
+                    </tr>
+                </table>
+                <div class="check">
+                    <p class="text-body">Occupancy: {{ message[0]["occupancy"] }}</p>
+          
+                  </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
