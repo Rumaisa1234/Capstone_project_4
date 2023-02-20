@@ -1,6 +1,5 @@
 version: "3.9"
 services:
-
   minio:
     image: minio/minio
     restart: always
@@ -13,7 +12,6 @@ services:
       MINIO_SECRET_KEY: minioadmin
     entrypoint: minio server
     command: '/export'
-
   createbuckets:
     image: minio/mc
     depends_on:
@@ -26,7 +24,6 @@ services:
       /usr/bin/mc policy download myminio/smartthermo;
       exit 0;
       "
-
   sensorsmock:
     build: ./sensors
     container_name: sensor
@@ -38,9 +35,8 @@ services:
       - SMART_THERMO_BUCKET=smartthermo
       - CARBON_SENSE_URL=http://rest-proxy:8082/topics/carbonsense
       - MOISTURE_MATE_URL=http://rest-proxy:8082/topics/moisturemate
-        
   luxdata_puller:
-    build: ./pulling_from_sensor
+    build: ./lux_data_puller
     container_name: luxdata_puller
     ports:
       - "3002:3002"
@@ -48,11 +44,10 @@ services:
       - KAFKA_BOOTSTRAP_SERVER= broker:29092
       - SENSORSMOCK_URL=http://sensorsmock:3000/api/luxmeter
     depends_on:
-      - sensorsmock
-    restart: always
-
+      - smart_thermo
+    restart: on-failure
   smart_thermo:
-    build: ./smart_thermo_puller
+    build: ./smart_thermo_service
     container_name: pulls3
     ports:
       - "3003:3003"
@@ -60,8 +55,7 @@ services:
       - KAFKA_BOOTSTRAP_SERVER= broker:29092
     depends_on:
       - sensorsmock
-    restart: always
-
+    restart: on-failure
   schema-registry:
     image: confluentinc/cp-schema-registry:7.3.0
     hostname: schema-registry
@@ -74,7 +68,6 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8083
-      
   rest-proxy:
     image: confluentinc/cp-kafka-rest:7.3.0
     depends_on:
@@ -87,15 +80,13 @@ services:
       KAFKA_REST_HOST_NAME: rest-proxy
       KAFKA_REST_BOOTSTRAP_SERVERS: 'broker:29092'
       KAFKA_REST_LISTENERS: "http://rest-proxy:8082"
-      KAFKA_REST_SCHEMA_REGISTRY_URL: 'http://schema-registry:8083' 
-
+      KAFKA_REST_SCHEMA_REGISTRY_URL: 'http://schema-registry:8083'
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.0
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-  
   broker:
     image: confluentinc/cp-kafka:7.3.0
     container_name: broker
@@ -113,7 +104,6 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-
   transformation_service:
     build: ./transformation_service
     environment:
@@ -121,9 +111,8 @@ services:
     depends_on:
       - createbuckets
     ports:
-      - "8000:8000"  
-    restart: always  
-  
+      - "8000:8000"
+    restart: on-failure
   prediction_service:
     build: ./prediction_service
     environment:
@@ -132,14 +121,12 @@ services:
       - luxdata_puller
     ports:
       - "8001:8001"
-    restart: always
-     
+    restart: on-failure
   databaseconnector:
       build: ./dbconnector
-      container_name: Database
+      container_name: database
       depends_on:
         - prediction_service
       ports:
         - "8005:8005"
-      restart : always
-      
+      restart: on-failure
