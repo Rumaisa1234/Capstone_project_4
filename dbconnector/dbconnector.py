@@ -3,15 +3,13 @@ import json
 from kafka import KafkaConsumer
 from pymongo import MongoClient
 
-predicted_data_consumer = None
-
 
 def json_deserializer(data):
     return json.loads(data.decode("utf-8"))
 
 
-def storing_records(Consumer):
-    for message in Consumer:
+def storing_records(consumer,collection):
+    for message in consumer:
         collection.insert_many(message.value)
 
 
@@ -28,4 +26,4 @@ if __name__ == "__main__":
     )
     db = client["IOTSensors"]
     collection = db["DataWOccupancy"]
-    storing_records(predicted_data_consumer)
+    storing_records(predicted_data_consumer,collection)

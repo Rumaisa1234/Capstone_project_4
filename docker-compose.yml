@@ -99,7 +99,7 @@ services:
       
   databaseconnector:
     build: ./dbconnector
-    container_name: Database
+    container_name: dbconnector
     depends_on:
       - broker
       - prediction_service
