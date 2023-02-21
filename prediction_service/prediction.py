@@ -31,7 +31,8 @@ def get_predictions(consumer):
 
 def publish_to_kafka(dataframe):
     json_message = dataframe.to_json(orient="records")
-    predicted_data_producer.send("predicted_data", json_message)
+    final_message = json.loads(json_message)
+    predicted_data_producer.send("predicted_data", final_message)
     predicted_data_producer.flush()
 
 
