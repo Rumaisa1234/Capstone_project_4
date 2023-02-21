@@ -22,7 +22,7 @@ if __name__ == "__main__":
         "carbonsense",
         bootstrap_servers=["localhost:9092"],
         value_deserializer=json_deserializer,
-        auto_offset_reset="latest",
+        auto_offset_reset="earliest",
         enable_auto_commit=True,
     )
     logging.basicConfig(level=logging.INFO)

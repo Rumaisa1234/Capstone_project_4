@@ -13,13 +13,13 @@ def json_deserializer(data):
 
 def read_msgs():
     for message in consumer:
-        logger.info(f"Received Lux Data: {message.value}")
+        logger.info(f"Received Predicted Data: {message.value}")
 
 
 if __name__ == "__main__":
 
     consumer = KafkaConsumer(
-        "luxmeter",
+        "predicted_data",
         bootstrap_servers=["localhost:9092"],
         value_deserializer=json_deserializer,
         auto_offset_reset="earliest",
